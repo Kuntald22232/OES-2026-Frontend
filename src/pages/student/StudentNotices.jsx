@@ -1,0 +1,113 @@
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+  Button,
+} from "@mui/material";
+
+import DashboardLayout from "../../layouts/DashboardLayout";
+import { getNotices } from "../../services/examApi";
+
+const StudentNotices = () => {
+  const [notices, setNotices] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+    loadNotices();
+  }, []);
+
+  const loadNotices =
+    async () => {
+      try {
+        const res =
+          await getNotices();
+
+        setNotices(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  return (
+    <DashboardLayout>
+      <Box sx={{ p: 3 }}>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          mb={3}
+        >
+          📢 Teacher Notices
+        </Typography>
+
+        {loading ? (
+          <CircularProgress />
+        ) : notices.length === 0 ? (
+          <Typography>
+            No notices available
+          </Typography>
+        ) : (
+          <Grid
+            container
+            spacing={3}
+          >
+            {notices.map(
+              (notice) => (
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  key={
+                    notice.id
+                  }
+                >
+                  <Card
+                    sx={{
+                      borderRadius:
+                        3,
+                      boxShadow:
+                        3,
+                    }}
+                  >
+                    <CardContent>
+                      <Typography
+                        variant="h6"
+                        fontWeight="bold"
+                      >
+                        {
+                          notice.title
+                        }
+                      </Typography>
+
+                      <Button
+                        variant="contained"
+                        sx={{
+                          mt: 2,
+                        }}
+                        href={`http://localhost:8080/uploads/notices/${notice.fileName}`}
+                        target="_blank"
+                      >
+                        Download
+                        Notice
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              )
+            )}
+          </Grid>
+        )}
+      </Box>
+    </DashboardLayout>
+  );
+};
+
+export default StudentNotices;
